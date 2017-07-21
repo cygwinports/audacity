@@ -1,0 +1,137 @@
+--- origsrc/audacity-minsrc-2.1.3/lib-src/portmixer/configure.ac	2016-11-20 10:12:30.000000000 -0600
++++ src/audacity-minsrc-2.1.3/lib-src/portmixer/configure.ac	2017-07-20 15:23:25.385507800 -0500
+@@ -83,7 +83,7 @@ have_wmme=no
+ have_ds=no
+ AC_CHECK_HEADER(windows.h, have_windows=yes, have_windows=no)
+ if [[ $have_windows = "yes" ]] ; then
+-   AC_CHECK_HEADER(pa_win_wmme.h, have_wmme=yes)
++   AC_CHECK_HEADER(pa_win_wmme.h, have_wmme=yes, ,[#include <windows.h>])
+    if [[ $have_wmme = "yes" ]] ; then
+       AC_EGREP_HEADER([PaWinMME_GetStreamInputHandle], [pa_win_wmme.h], , [have_wmme=no])
+       if [[ $have_wmme = "no" ]] ; then
+@@ -94,7 +94,7 @@ if [[ $have_windows = "yes" ]] ; then
+    AC_CHECK_HEADER(pa_win_ds.h, have_ds=yes)
+    if [[ $have_ds = "yes" ]] ; then
+       AC_EGREP_HEADER([PaWinDS_GetStreamInputGUID], [pa_win_ds.h], , [have_ds=no])
+-      if [[ $have_support = "no" ]] ; then
++      if [[ $have_ds = "no" ]] ; then
+          AC_MSG_WARN([Missing PaWinDS_GetStreamInputGUID support in pa_win_ds.h]);
+       fi
+    fi
+@@ -137,6 +137,22 @@ if [[ $have_coreaudio = "yes" ]] ; then
+    have_support=yes
+ fi
+ 
++AM_CONDITIONAL([USE_WIN_COMMON], [test "$have_windows" = yes])
++
++AM_CONDITIONAL([USE_WIN_MME], [test "$have_wmme" = yes])
++if [[ $have_wmme = "yes" ]] ; then
++   AC_MSG_NOTICE([Including support for Windows MME])
++   AC_DEFINE(PX_USE_WIN_MME)
++   have_support=yes
++fi
++
++AM_CONDITIONAL([USE_WIN_DSOUND], [test "$have_ds" = yes])
++if [[ $have_ds = "yes" ]] ; then
++   AC_MSG_NOTICE([Including support for Windows DirectSound])
++   AC_DEFINE(PX_USE_WIN_DSOUND)
++   have_support=yes
++fi
++
+ if [[ $have_support = "no" ]] ; then
+    AC_MSG_ERROR([No supported mixer interfaces detected])
+ fi
+--- origsrc/audacity-minsrc-2.1.3/lib-src/portmixer/src/Makefile.am	2015-06-14 10:19:30.000000000 -0500
++++ src/audacity-minsrc-2.1.3/lib-src/portmixer/src/Makefile.am	2017-07-20 15:23:25.389009800 -0500
+@@ -5,6 +5,7 @@ libportmixer_la_SOURCES = \
+ 	px_mixer.c \
+ 	px_mixer.h \
+ 	$(NULL)
++libportmixer_la_LIBADD = $(PORTAUDIO_LIBS)
+ 
+ if USE_UNIX_OSS
+ libportmixer_la_SOURCES += px_unix_oss.c
+@@ -18,13 +19,27 @@ if USE_MAC_COREAUDIO
+ libportmixer_la_SOURCES += px_mac_coreaudio.c
+ endif
+ 
+-EXTRA_DIST = \
+-	px_example_api.c \
++if USE_WIN_COMMON
++libportmixer_la_SOURCES += \
+ 	px_win_common.c \
+ 	px_win_common.h \
+-	px_win_ds.c \
+ 	px_win_endpoint.c \
+ 	px_win_endpoint.h \
++	$(NULL)
++libportmixer_la_LIBADD += -lole32
++endif
++
++if USE_WIN_MME
++libportmixer_la_SOURCES += px_win_wmme.c
++libportmixer_la_LIBADD += -lwinmm
++endif
++
++if USE_WIN_DSOUND
++libportmixer_la_SOURCES += px_win_ds.c
++libportmixer_la_LIBADD += -ldsound
++endif
++
++EXTRA_DIST = \
++	px_example_api.c \
+ 	px_win_wasapi.c \
+-	px_win_wmme.c \
+ 	$(NULL)
+--- origsrc/audacity-minsrc-2.1.3/lib-src/portmixer/src/px_mixer.c	2015-06-14 10:19:30.000000000 -0500
++++ src/audacity-minsrc-2.1.3/lib-src/portmixer/src/px_mixer.c	2017-07-20 15:23:25.392510300 -0500
+@@ -39,7 +39,7 @@
+ #include "portmixer.h"
+ #include "px_mixer.h"
+ 
+-#if defined(_WIN32)
++#if defined(_WIN32) || defined(__CYGWIN__)
+ #include <windows.h>
+ #endif
+ 
+--- origsrc/audacity-minsrc-2.1.3/lib-src/portmixer/src/px_win_common.c	2015-06-14 10:19:30.000000000 -0500
++++ src/audacity-minsrc-2.1.3/lib-src/portmixer/src/px_win_common.c	2017-07-20 15:23:25.396508900 -0500
+@@ -36,6 +36,7 @@
+  *
+  */
+ 
++#include <limits.h>
+ #include <windows.h>
+ #include <tchar.h>
+ 
+--- origsrc/audacity-minsrc-2.1.3/lib-src/portmixer/src/px_win_endpoint.c	2015-06-14 10:19:30.000000000 -0500
++++ src/audacity-minsrc-2.1.3/lib-src/portmixer/src/px_win_endpoint.c	2017-07-20 15:23:25.401011400 -0500
+@@ -40,6 +40,7 @@
+ 
+ #include <windows.h>
+ #include <tchar.h>
++#define WEOF (wint_t)(0xFFFF)
+ #include <strsafe.h>
+ #include <mmdeviceapi.h>
+ #include <initguid.h>
+@@ -75,8 +76,10 @@ DEFINE_GUID(CLSID_MMDeviceEnumerator, 0x
+             0x8E, 0x3D, 0xC4, 0x57, 0x92, 0x91, 0x69, 0x2E);
+ DEFINE_GUID(IID_IMMDeviceEnumerator, 0xA95664D2, 0x9614, 0x4F35,
+             0xA7, 0x46, 0xDE, 0x8D, 0xB6, 0x36, 0x17, 0xE6);
++#ifndef __MINGW64_VERSION_MAJOR
+ DEFINE_GUID(IID_IAudioEndpointVolume, 0x5CDF2C82, 0x841E, 0x4546,
+             0x97, 0x22, 0x0C, 0xF7, 0x40, 0x78, 0x22, 0x9A);
++#endif
+ 
+ #define DRV_RESERVED                      0x0800
+ #define DRV_QUERYFUNCTIONINSTANCEID       (DRV_RESERVED + 17)
+--- origsrc/audacity-minsrc-2.1.3/lib-src/portmixer/src/px_win_wmme.c	2015-06-14 10:19:30.000000000 -0500
++++ src/audacity-minsrc-2.1.3/lib-src/portmixer/src/px_win_wmme.c	2017-07-20 15:23:25.404510700 -0500
+@@ -36,6 +36,7 @@
+  *
+  */
+ 
++#include <limits.h>
+ #include <windows.h>
+ 
+ #include "portaudio.h"

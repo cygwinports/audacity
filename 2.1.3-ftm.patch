@@ -1,0 +1,20 @@
+--- origsrc/audacity-minsrc-2.1.3/src/FileNames.cpp	2017-03-08 07:15:50.000000000 -0600
++++ src/audacity-minsrc-2.1.3/src/FileNames.cpp	2017-07-20 15:23:25.414512700 -0500
+@@ -20,6 +20,7 @@ used throughout Audacity into this one p
+ 
+ *//********************************************************************/
+ 
++#define _GNU_SOURCE
+ #include "Audacity.h"
+ 
+ #include <wx/defs.h>
+--- origsrc/audacity-minsrc-2.1.3/src/Makefile.am	2016-08-27 14:36:29.000000000 -0500
++++ src/audacity-minsrc-2.1.3/src/Makefile.am	2017-07-20 15:23:25.418515500 -0500
+@@ -47,7 +47,6 @@ libaudacity_la_SOURCES = \
+ 	$(NULL)
+ 
+ audacity_CPPFLAGS = \
+-	-std=c++11 \
+ 	-Wno-deprecated-declarations \
+ 	-D__STDC_CONSTANT_MACROS \
+ 	-DLIBDIR=\"$(libdir)\" \

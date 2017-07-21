@@ -1,0 +1,48 @@
+--- origsrc/audacity-minsrc-2.1.3/src/Makefile.am	2016-08-27 14:36:29.000000000 -0500
++++ src/audacity-minsrc-2.1.3/src/Makefile.am	2017-07-20 15:23:25.418515500 -0500
+@@ -53,8 +53,8 @@ libaudacity_la_SOURCES = \
+ 	-DLIBDIR=\"$(libdir)\" \
+ 	$(EXPAT_CFLAGS) \
+ 	$(FILEDIALOG_CFLAGS) \
+-	$(PORTAUDIO_CFLAGS) \
+ 	$(PORTMIXER_CFLAGS) \
++	$(PORTAUDIO_CFLAGS) \
+ 	$(SNDFILE_CFLAGS) \
+ 	$(SOXR_CFLAGS) \
+ 	$(WIDGETEXTRA_CFLAGS) \
+@@ -80,16 +79,7 @@ audacity_CXXFLAGS = \
+    -Wno-unused-local-typedefs
+ 
+ audacity_LDFLAGS = -rdynamic
+-audacity_LDADD = \
+-	$(EXPAT_LIBS) \
+-	$(FILEDIALOG_LIBS) \
+-	$(PORTAUDIO_LIBS) \
+-	$(PORTMIXER_LIBS) \
+-	$(SNDFILE_LIBS) \
+-	$(SOXR_LIBS) \
+-	$(WIDGETEXTRA_LIBS) \
+-	$(WX_LIBS) \
+-	$(NULL)
++audacity_LDADD =
+ 
+ audacity_SOURCES = \
+ 	$(libaudacity_la_SOURCES) \
+@@ -741,6 +731,17 @@ audacity_SOURCES += \
+ 	$(NULL)
+ endif
+ 
++audacity_LDADD += \
++	$(EXPAT_LIBS) \
++	$(FILEDIALOG_LIBS) \
++	$(PORTAUDIO_LIBS) \
++	$(PORTMIXER_LIBS) \
++	$(SNDFILE_LIBS) \
++	$(SOXR_LIBS) \
++	$(WIDGETEXTRA_LIBS) \
++	$(WX_LIBS) \
++	$(NULL)
++
+ # TODO: Check *.cpp and *.h files if they are needed.
+ EXTRA_DIST = audacity.desktop.in xml/audacityproject.dtd \
+ 	AudacityHeaders.cpp \

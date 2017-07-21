@@ -1,0 +1,29 @@
+--- origsrc/audacity-minsrc-2.1.3/configure.ac	2017-03-13 15:48:11.000000000 -0500
++++ src/audacity-minsrc-2.1.3/configure.ac	2017-07-20 15:23:25.365506500 -0500
+@@ -560,16 +560,6 @@ case "${host_os}" in
+       fi
+       ;;
+ 
+-   cygwin*)
+-      dnl Windows/CygWin configuration
+-      LIBS="$LIBS -lkernel32 -luser32 -lgdi32 -lwinspool -lcomdlg32 -ladvapi32 -lshell32 -lole32 -loleaut32 -luuid -lodbc32 -lodbccp32 -lwsock32 -lwinmm"
+-      CONFIGHEADER="configwin.h"
+-
+-      AC_DEFINE(__CYGWIN__,1,[We're using cygwin])
+-      dnl ' (end endless string in vim)
+-      AC_DEFINE(_FILE_OFFSET_BITS,32,[Placeholder for large file support])
+-      ;;
+-
+    *)
+       dnl Unix configuration
+       CONFIGHEADER="configunix.h"
+@@ -691,9 +681,6 @@ if [[ "$use_vst" = "yes" ]] ; then
+ fi
+ 
+ case "${host_os}" in
+-   cygwin*)
+-      AC_CONFIG_HEADER(src/configwin.h:src/configtemplate.h)
+-      ;;
+    *)
+       AC_CONFIG_HEADER(src/configunix.h:src/configtemplate.h)
+       ;;

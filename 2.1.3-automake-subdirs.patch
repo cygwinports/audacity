@@ -1,0 +1,58 @@
+--- origsrc/audacity-minsrc-2.1.3/lib-src/Makefile.am	2015-06-14 10:19:30.000000000 -0500
++++ src/audacity-minsrc-2.1.3/lib-src/Makefile.am	2017-07-20 15:23:25.373513700 -0500
+@@ -107,55 +107,10 @@ include dist-portaudio.mk
+ SUBDIRS = FileDialog
+ OPTIONAL_SUBDIRS =
+ 
+-if USE_LOCAL_EXPAT
+-OPTIONAL_SUBDIRS += expat
+-endif
+-
+-if USE_LOCAL_LIBID3TAG
+-OPTIONAL_SUBDIRS += libid3tag
+-endif
+-
+-if USE_LOCAL_LIBMAD
+-OPTIONAL_SUBDIRS += libmad
+-endif
+-
+ if USE_LOCAL_LIBNYQUIST
+ SUBDIRS += libnyquist
+ endif
+ 
+-if USE_LOCAL_LIBSNDFILE
+-OPTIONAL_SUBDIRS += libsndfile
+-endif
+-
+-if USE_LOCAL_LIBSOXR
+-OPTIONAL_SUBDIRS += libsoxr
+-endif
+-
+-if USE_LOCAL_LIBSOUNDTOUCH
+-OPTIONAL_SUBDIRS += soundtouch
+-endif
+-
+-if USE_LOCAL_LIBTWOLAME
+-OPTIONAL_SUBDIRS += twolame
+-endif
+-
+-if USE_LOCAL_LIBVORBIS
+-OPTIONAL_SUBDIRS += libogg libvorbis
+-endif
+-
+-if USE_LOCAL_LIBFLAC
+-# Note: libflac needs to be linked against (the local or system) libogg.
+-OPTIONAL_SUBDIRS += libflac
+-endif
+-
+-if USE_LOCAL_LV2
+-SUBDIRS += lv2
+-endif
+-
+-if USE_LOCAL_PORTAUDIO
+-SUBDIRS += portaudio-v19
+-endif
+-
+ # Note: portmixer needs to be linked against (the local or system) portaudio.
+ SUBDIRS += portmixer
+ 
