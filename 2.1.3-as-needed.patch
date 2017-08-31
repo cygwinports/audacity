@@ -10,11 +10,10 @@
  	$(SNDFILE_CFLAGS) \
  	$(SOXR_CFLAGS) \
  	$(WIDGETEXTRA_CFLAGS) \
-@@ -80,16 +79,7 @@ audacity_CXXFLAGS = \
-    -Wno-unused-local-typedefs
+@@ -81,14 +80,6 @@ audacity_CXXFLAGS = \
  
  audacity_LDFLAGS = -rdynamic
--audacity_LDADD = \
+ audacity_LDADD = \
 -	$(EXPAT_LIBS) \
 -	$(FILEDIALOG_LIBS) \
 -	$(PORTAUDIO_LIBS) \
@@ -23,12 +22,10 @@
 -	$(SOXR_LIBS) \
 -	$(WIDGETEXTRA_LIBS) \
 -	$(WX_LIBS) \
--	$(NULL)
-+audacity_LDADD =
+ 	$(NULL)
  
  audacity_SOURCES = \
- 	$(libaudacity_la_SOURCES) \
-@@ -741,6 +731,17 @@ audacity_SOURCES += \
+@@ -741,6 +733,17 @@ audacity_SOURCES += \
  	$(NULL)
  endif
  

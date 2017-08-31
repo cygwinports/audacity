@@ -28,7 +28,7 @@
        return (wxT("libavutil.") wxT(AV_STRINGIFY(LIBAVUTIL_VERSION_MAJOR)) wxT(".dylib"));
     }
 +#elif defined(__CYGWIN__)
-+   /* Library names and file filters for Mac OS only */
++   /* Library names and file filters for Cygwin only */
 +   wxString GetLibraryTypeString()
 +   {
 +      return _("Dynamically Linked Libraries (*.dll)|*.dll|All Files (*)|*");
