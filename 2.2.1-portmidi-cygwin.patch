@@ -1,0 +1,25 @@
+--- origsrc/audacity-minsrc-2.2.1-rc3/lib-src/portmidi/Makefile.am	2017-08-31 16:30:45.000000000 -0500
++++ src/audacity-minsrc-2.2.1-rc3/lib-src/portmidi/Makefile.am	2018-01-11 21:11:26.937141500 -0600
+@@ -13,9 +13,8 @@ lib_LIBRARIES = libportmidi_s.a
+ libportmidi_s_a_SOURCES = pm_common/portmidi.c \
+ 	pm_common/pmutil.c \
+ 	porttime/ptlinux.c \
+-	pm_linux/pmlinuxalsa.c \
+-	pm_linux/pmlinux.c \
+-	pm_linux/finddefault.c
++	pm_win/pmwin.c \
++	pm_win/pmwinmm.c
+ 
+ # and the header files for the library. At the moment these go into the include
+ # directory directly, it would be much better to have them in a subdirectory
+--- origsrc/audacity-minsrc-2.2.1-rc3/src/AudioIO.cpp	2017-11-23 02:06:58.000000000 -0600
++++ src/audacity-minsrc-2.2.1-rc3/src/AudioIO.cpp	2018-01-11 21:35:59.517576300 -0600
+@@ -980,7 +980,7 @@ static double streamStartTime = 0; // bi
+ 
+ static double SystemTime(bool usingAlsa)
+ {
+-#ifdef __WXGTK__
++#ifdef __linux__
+    if (usingAlsa) {
+       struct timespec now;
+       // CLOCK_MONOTONIC_RAW is unaffected by NTP or adj-time
